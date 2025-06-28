@@ -1,5 +1,9 @@
 <h1 align="center">✨ Fullstack Chat & Video Calling App ✨</h1>
 
+## Deployment Link
+
+https://streamify-68h4.onrender.com
+
 Highlights:
 
 - 🌐 Real-time Messaging with Typing Indicators & Reactions
