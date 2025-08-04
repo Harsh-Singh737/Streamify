@@ -23,6 +23,7 @@ const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
 const CallPage = () => {
   const { id: callId } = useParams();
+  const navigate = useNavigate(); // ✅ ADDED navigate hook here
   const [client, setClient] = useState(null);
   const [call, setCall] = useState(null);
   const [isConnecting, setIsConnecting] = useState(true);
@@ -37,11 +38,9 @@ const CallPage = () => {
 
   useEffect(() => {
     const initCall = async () => {
-      if (!tokenData.token || !authUser || !callId) return;
+      if (!tokenData?.token || !authUser || !callId) return;
 
       try {
-        console.log("Initializing Stream video client...");
-
         const user = {
           id: authUser._id,
           name: authUser.fullName,
@@ -58,7 +57,12 @@ const CallPage = () => {
 
         await callInstance.join({ create: true });
 
-        console.log("Joined call successfully");
+        // ✅ Listen for call end by other participant
+        callInstance.on("call.ended", () => {
+          console.log("Call has ended by other participant.");
+          toast("Call ended by other participant");
+          navigate("/");
+        });
 
         setClient(videoClient);
         setCall(callInstance);
@@ -71,7 +75,7 @@ const CallPage = () => {
     };
 
     initCall();
-  }, [tokenData, authUser, callId]);
+  }, [tokenData, authUser, callId, navigate]);
 
   if (isLoading || isConnecting) return <PageLoader />;
 
@@ -100,7 +104,11 @@ const CallContent = () => {
 
   const navigate = useNavigate();
 
-  if (callingState === CallingState.LEFT) return navigate("/");
+  useEffect(() => {
+    if (callingState === CallingState.LEFT) {
+      navigate("/");
+    }
+  }, [callingState, navigate]);
 
   return (
     <StreamTheme>
